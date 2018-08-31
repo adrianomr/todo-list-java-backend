@@ -13,7 +13,6 @@ export default props =>
     <BrowserRouter>
         <div className="app">
             {/* <Logo /> */}
-            <Nav />
             <Routes />
             {/* <Footer /> */}
         </div>
