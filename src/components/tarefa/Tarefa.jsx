@@ -3,44 +3,56 @@ import React, { Component } from 'react'
 import Main from '../template/Main'
 
 const headerProps = {
-    icon: 'users',
+    icon: 'tarefas',
     title: 'Usuários',
     subtitle: 'Cadastro de usuários: Incluir, Listar, Alterar e Excluir!'
 }
 
-const baseUrl = 'http://localhost:3001/users'
+const baseUrl = 'http://localhost:3001/tarefas'
 const initialState = {
-    user: { name: '', email: '' },
-    list: []
+    tarefa: { nome: '', tempoEstimado: '', descricao:'' },
+    list: [{id:1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao:'Tarefa inicial' }]
 }
 
-export default class UserCrud extends Component {
+export default class tarefaCrud extends Component {
 
     state = { ...initialState }
+
+    componentWillMount(){
+        console.log('ok')
+        this.setState(initialState)
+    }
+
+    updateField(event) {
+        console.log('updating field')
+        const tarefa = { ...this.state.tarefa }
+        tarefa[event.target.name] = event.target.value
+        this.setState({ tarefa })
+    }
 
     renderForm() {
         return (
             <div className="form">
                 <div className="row">
-                    <div className="col-12 col-md-6">
+                    <div className="col-12 col-md-10">
                         <div className="form-group">
                             <label>Nome</label>
                             <input type="text" className="form-control"
-                                name="name"
-                                value={this.state.user.name}
-                                // onChange={}
+                                name="nome"
+                                value={this.state.tarefa.nome}
+                                onChange={e => this.updateField(e)}
                                 placeholder="Digite o nome..." />
                         </div>
                     </div>
 
-                    <div className="col-12 col-md-6">
+                    <div className="col-12 col-md-2">
                         <div className="form-group">
-                            <label>E-mail</label>
-                            <input type="text" className="form-control"
-                                name="email"
-                                value={this.state.user.email}
-                                // onChange={}
-                                placeholder="Digite o e-mail..." />
+                            <label>Tempo estimado</label>
+                            <input type="number" className="form-control"
+                                name="tempoEstimado"
+                                value={this.state.tarefa.tempoEstimado}
+                                onChange={this.updateField}
+                                placeholder="Digite o tempo..." />
                         </div>
                     </div>
                 </div>
@@ -50,13 +62,13 @@ export default class UserCrud extends Component {
                 <div className="row">
                     <div className="col-12 d-flex justify-content-end">
                         <button className="btn btn-primary"
-                            // onClick={}
+                            onClick={this.updateField}
                             >
                             Salvar
                         </button>
 
                         <button className="btn btn-secondary ml-2"
-                            // onClick={}
+                            onClick={this.updateField}
                             >
                             Cancelar
                         </button>
@@ -73,7 +85,8 @@ export default class UserCrud extends Component {
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>E-mail</th>
+                        <th>Tempo Estimado</th>
+                        <th>Descrição</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -85,12 +98,13 @@ export default class UserCrud extends Component {
     }
 
     renderRows() {
-        return this.state.list.map(user => {
+        return this.state.list.map(tarefa => {
             return (
-                <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                <tr key={tarefa.id}>
+                    <td>{tarefa.id}</td>
+                    <td>{tarefa.nome}</td>
+                    <td>{tarefa.tempoEstimado}</td>
+                    <td>{tarefa.descricao}</td>
                     <td>
                         <button className="btn btn-warning"
                             // onClick={}
