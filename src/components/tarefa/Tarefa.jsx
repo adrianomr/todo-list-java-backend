@@ -10,15 +10,25 @@ const headerProps = {
 
 const baseUrl = 'http://localhost:3001/tarefas'
 const initialState = {
-    tarefa: { nome: '', tempoEstimado: '', descricao:'' },
-    list: [{id:1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao:'Tarefa inicial' }]
+    tarefa: { nome: '', tempoEstimado: '', descricao: '', usuario: '' },
+    list: [{ id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
+    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' }],
+    usuarioList: [{ id: 1, nome: "Adriano" }, { id: 2, nome: "João" }]
 }
 
 export default class tarefaCrud extends Component {
 
-    state = { ...initialState }
 
-    componentWillMount(){
+    componentWillMount() {
         console.log('ok')
         this.setState(initialState)
     }
@@ -30,13 +40,33 @@ export default class tarefaCrud extends Component {
         this.setState({ tarefa })
     }
 
+    addTarefa() {
+        console.log('updating field')
+        const tarefa = { ...this.state.tarefa }
+        const list = this.state.list;
+
+
+        list.push(tarefa)
+        this.setState({ list: list })
+        this.setState({ tarefa: { nome: '', tempoEstimado: '', descricao: '' } })
+
+    }
+    renderUserList() {
+        const usuarioList = this.state.usuarioList
+        debugger;
+        return usuarioList.map(usuario => {
+            return (
+                <option value={usuario.id}>{usuario.nome}</option>
+            )
+        })
+    }
     renderForm() {
         return (
             <div className="form">
                 <div className="row">
-                    <div className="col-12 col-md-10">
+                    <div className="col-12 col-md-6">
                         <div className="form-group">
-                            <label>Nome</label>
+                            <label>Tarefa</label>
                             <input type="text" className="form-control"
                                 name="nome"
                                 value={this.state.tarefa.nome}
@@ -44,15 +74,38 @@ export default class tarefaCrud extends Component {
                                 placeholder="Digite o nome..." />
                         </div>
                     </div>
-
+                    <div className="col-12 col-md-4">
+                        <label for="exampleSelect1">Usuário</label>
+                        <select class="form-control"
+                                name="usuario"
+                                value={this.state.tarefa.usuario}
+                                onChange={e => this.updateField(e)}>
+                            {this.renderUserList()}
+                        </select>
+                    </div>
                     <div className="col-12 col-md-2">
                         <div className="form-group">
-                            <label>Tempo estimado</label>
+                            <label>Tempo estimado (h)</label>
                             <input type="number" className="form-control"
                                 name="tempoEstimado"
                                 value={this.state.tarefa.tempoEstimado}
-                                onChange={this.updateField}
+                                onChange={e => this.updateField(e)}
                                 placeholder="Digite o tempo..." />
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    
+                </div>
+                <div className="row">
+                    <div className="col-12 col-md-10">
+                        <div className="form-group">
+                            <label>Descrição</label>
+                            <textarea type="text" className="form-control"
+                                name="descricao"
+                                value={this.state.tarefa.descricao}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o descrição..." />
                         </div>
                     </div>
                 </div>
@@ -62,14 +115,14 @@ export default class tarefaCrud extends Component {
                 <div className="row">
                     <div className="col-12 d-flex justify-content-end">
                         <button className="btn btn-primary"
-                            onClick={this.updateField}
-                            >
+                            onClick={e => this.addTarefa()}
+                        >
                             Salvar
                         </button>
 
                         <button className="btn btn-secondary ml-2"
                             onClick={this.updateField}
-                            >
+                        >
                             Cancelar
                         </button>
                     </div>
@@ -107,13 +160,13 @@ export default class tarefaCrud extends Component {
                     <td>{tarefa.descricao}</td>
                     <td>
                         <button className="btn btn-warning"
-                            // onClick={}
-                            >
+                        // onClick={}
+                        >
                             <i className="fa fa-pencil"></i>
                         </button>
                         <button className="btn btn-danger ml-2"
-                            // onClick={}
-                            >
+                        // onClick={}
+                        >
                             <i className="fa fa-trash"></i>
                         </button>
                     </td>
@@ -121,7 +174,7 @@ export default class tarefaCrud extends Component {
             )
         })
     }
-    
+
     render() {
         return (
             <Main {...headerProps}>
