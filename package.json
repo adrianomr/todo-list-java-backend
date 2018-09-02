@@ -16,7 +16,6 @@
   
   "scripts": {
     "start": "react-scripts start",
-    "dev": "webpack-dev-server --progress --colors --inline --hot",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
