@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
+import axios from 'axios'
 import './Home.css'
-
+    const baseUrl = 'http://localhost:37430/tarefas/webresources/todolist.usuario'
 export default class Home extends Component {
+    
     componentWillMount(){
         const usuario = JSON.parse(localStorage.getItem('usuario')) || {id:'', username:'', senha:''}
         this.setState({usuario});
+       
         
     }
     componentDidMount(){
         const usuario = { ...this.state.usuario }
-        debugger
         if(usuario.username !== '')
             this.signIn()
     }
@@ -23,8 +24,21 @@ export default class Home extends Component {
 
     signIn(){
         localStorage.setItem('usuario', JSON.stringify(this.state.usuario))
-        // this.props.history.push('/tarefas')
+        this.props.history.push('/tarefas')
     }
+
+
+    signUp() {
+        const usuario = this.state.usuario
+        const method = 'post'
+        const url = baseUrl
+        debugger
+        axios[method](url, usuario)
+            .then(resp => {
+                this.signIn()
+            })
+    }
+
     render(){ return (
         <div className = "text-center home" >
             <div className="form-signin">
@@ -53,7 +67,9 @@ export default class Home extends Component {
                         className="btn btn-lg btn-primary btn-block" 
                         type="submit" 
                         onClick={e => this.signIn()}>Sign in</button>
-                <button className="btn btn-lg btn-secondary btn-block" type="submit">Sign up</button>
+                <button className="btn btn-lg btn-secondary btn-block"
+                        onClick={e => this.signUp()}
+                        type="submit">Sign up</button>
             </div>
         </div>
     )

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 export default props =>
     
         <nav className="col-md-2 d-none d-md-block bg-light sidebar">
-            {/* Refatorar em casa! */}
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">

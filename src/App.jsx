@@ -9,7 +9,7 @@ import Routes from './Routes'
 // import Footer from '../components/template/Footer'
 
 export default props =>
-    <BrowserRouter location="/" context={this.staticContext}>
+    <BrowserRouter>
         <div className="app">
             {/* <Logo /> */}
             <Routes />
