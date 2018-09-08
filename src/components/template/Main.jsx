@@ -7,8 +7,8 @@ export default props =>
     <React.Fragment>
         <Header {...props} />
         <div className="row">
-            <Nav />
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            
+            <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4">
                 <div class="">
                     {props.children}
                 </div>

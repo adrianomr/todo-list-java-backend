@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-// import axios from 'axios'
+import axios from 'axios'
 import Main from '../template/Main'
 
 const headerProps = {
@@ -7,22 +7,14 @@ const headerProps = {
     title: 'Usuários',
     subtitle: 'Cadastro de usuários: Incluir, Listar, Alterar e Excluir!'
 }
-
-const baseUrl = 'http://localhost:3001/tarefas'
+const tarefaUrl = 'http://localhost:13422/tarefas/webresources/todolist.tarefa'
+const usuarioUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
+const tarefaInicial = { nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuario_id: null }
 const initialState = {
-    tarefa: { nome: '', tempoEstimado: '', descricao: '', usuario: '' },
-    list: [{ id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' },
-    { id: 1, nome: 'Tarefa Inicial', tempoEstimado: '10', descricao: 'Tarefa inicial' }],
-    usuarioList: [{ id: 1, nome: "Adriano" }, { id: 2, nome: "João" }]
+    tarefa: tarefaInicial,
+    list: [],
+    usuarioList: [],
+    usuarioLogado: {}
 }
 
 export default class tarefaCrud extends Component {
@@ -31,32 +23,64 @@ export default class tarefaCrud extends Component {
     componentWillMount() {
         console.log('ok')
         this.setState(initialState)
+        this.getUsuarios()
+        this.getUsuarioLogado()
+        this.search()
+    }
+
+    getUsuarioLogado() {
+        const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
+        debugger
+        this.setState({ usuarioLogado: usuario })
+    }
+
+    getUsuarios() {
+        axios(usuarioUrl).then(resp => {
+            this.setState({ usuarioList: resp.data })
+        })
+    }
+
+    clear() {
+        this.setState({ tarefa: tarefaInicial })
     }
 
     updateField(event) {
         console.log('updating field')
         const tarefa = { ...this.state.tarefa }
-        tarefa[event.target.name] = event.target.value
+        if (event.target.type === "number") {
+            tarefa[event.target.name] = parseFloat(event.target.value)
+        } else {
+            tarefa[event.target.name] = event.target.value
+        }
+        debugger
         this.setState({ tarefa })
     }
 
     addTarefa() {
         console.log('updating field')
         const tarefa = { ...this.state.tarefa }
+        debugger
         const list = this.state.list;
+        axios['post'](tarefaUrl, tarefa)
+            .then(resp => {
+                this.search()
+            })
+        this.clear()
 
+    }
 
-        list.push(tarefa)
-        this.setState({ list: list })
-        this.setState({ tarefa: { nome: '', tempoEstimado: '', descricao: '' } })
-
+    search() {
+        axios(tarefaUrl).then(resp => {
+            debugger
+            this.setState({ list: resp.data })
+        })
     }
     renderUserList() {
         const usuarioList = this.state.usuarioList
         debugger;
         return usuarioList.map(usuario => {
             return (
-                <option value={usuario.id}>{usuario.nome}</option>
+                <option value={usuario.id}>{usuario.username}</option>
             )
         })
     }
@@ -77,9 +101,9 @@ export default class tarefaCrud extends Component {
                     <div className="col-12 col-md-4">
                         <label for="exampleSelect1">Usuário</label>
                         <select class="form-control"
-                                name="usuario"
-                                value={this.state.tarefa.usuario}
-                                onChange={e => this.updateField(e)}>
+                            name="usuario_id"
+                            value={this.state.tarefa.usuario_id}
+                            onChange={e => this.updateField(e)}>
                             {this.renderUserList()}
                         </select>
                     </div>
@@ -87,15 +111,15 @@ export default class tarefaCrud extends Component {
                         <div className="form-group">
                             <label>Tempo estimado (h)</label>
                             <input type="number" className="form-control"
-                                name="tempoEstimado"
-                                value={this.state.tarefa.tempoEstimado}
+                                name="tempoestimado"
+                                value={this.state.tarefa.tempoestimado}
                                 onChange={e => this.updateField(e)}
                                 placeholder="Digite o tempo..." />
                         </div>
                     </div>
                 </div>
                 <div className="row">
-                    
+
                 </div>
                 <div className="row">
                     <div className="col-12 col-md-10">
@@ -151,27 +175,34 @@ export default class tarefaCrud extends Component {
     }
 
     renderRows() {
+        const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
-            return (
-                <tr key={tarefa.id}>
-                    <td>{tarefa.id}</td>
-                    <td>{tarefa.nome}</td>
-                    <td>{tarefa.tempoEstimado}</td>
-                    <td>{tarefa.descricao}</td>
-                    <td>
-                        <button className="btn btn-warning"
-                        // onClick={}
-                        >
-                            <i className="fa fa-pencil"></i>
-                        </button>
-                        <button className="btn btn-danger ml-2"
-                        // onClick={}
-                        >
-                            <i className="fa fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            )
+            debugger
+            const usuario = tarefa.usuarioId || {}
+            if (usuario.id === usuarioLogado.id) {
+                return (
+                    <tr key={tarefa.id}>
+                        <td>{tarefa.id}</td>
+                        <td>{tarefa.nome}</td>
+                        <td>{tarefa.tempoestimado}</td>
+                        <td>{tarefa.descricao}</td>
+                        <td>
+                            <button className="btn btn-warning"
+                            // onClick={}
+                            >
+                                <i className="fa fa-pencil"></i>
+                            </button>
+                            <button className="btn btn-danger ml-2"
+                            // onClick={}
+                            >
+                                <i className="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                )
+            } else {
+                return ''
+            }
         })
     }
 
