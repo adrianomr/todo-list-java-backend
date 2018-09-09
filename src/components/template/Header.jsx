@@ -8,11 +8,11 @@ export default class Header extends Component {
         localStorage.setItem('usuario', JSON.stringify({ id: '', username: '', senha: '' }))
     }
     render() {
-        return (<nav class="navbar fixed-top flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-sm-3 col-md-2 mr-0">Lista de Tarefas</a>
-            <ul class="navbar-nav px-3">
-                <li class="nav-item text-nowrap">
-                    <Link class="nav-link" onClick={this.signOut} to="/">
+        return (<nav className="navbar fixed-top flex-md-nowrap p-0 shadow">
+            <a className="navbar-brand col-sm-3 col-md-2 mr-0">Lista de Tarefas</a>
+            <ul className="navbar-nav px-3">
+                <li className="nav-item text-nowrap">
+                    <Link className="nav-link" onClick={this.signOut} to="/">
                         <i>Sign out</i>
                     </Link>
                 </li>

@@ -8,8 +8,8 @@ export default props =>
         <Header {...props} />
         <div className="row">
             
-            <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-4">
-                <div class="">
+            <main role="main" className="col-md-12 ml-sm-auto col-lg-12 px-4">
+                <div className="">
                     {props.children}
                 </div>
             </main>

@@ -11,14 +11,14 @@ const headerProps = {
 }
 const tarefaUrl = 'http://localhost:13422/tarefas/webresources/todolist.tarefa'
 const usuarioUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
-const tarefaInicial = { nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuarioId: {} }
+const tarefaInicial = { id: null, nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuarioId: {} }
 const initialState = {
     tarefa: tarefaInicial,
     list: [],
     usuarioList: [],
     usuarioLogado: {},
-    modalFinalizaTarefa: false,
-    modalIsOpen: false
+    modalIsOpen: false,
+    errorMessage: ""
 }
 Modal.setAppElement('#root')
 const customStyles = {
@@ -42,6 +42,7 @@ export default class tarefaCrud extends Component {
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.updateField = this.updateField.bind(this);
     }
     componentDidMount() {
         this.getUsuarios()
@@ -65,8 +66,9 @@ export default class tarefaCrud extends Component {
 
     getUsuarioLogado() {
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
-
-        this.setState({ usuarioLogado: usuario })
+        const tarefa = { ...this.state.tarefa, usuarioId: usuario }
+        debugger
+        this.setState({ usuarioLogado: usuario, tarefa })
     }
 
     getUsuarios() {
@@ -76,7 +78,7 @@ export default class tarefaCrud extends Component {
     }
 
     clear() {
-        this.setState({ tarefa: tarefaInicial })
+        this.setState({ tarefa: { ...tarefaInicial, usuarioId: this.state.usuarioLogado } })
     }
 
     updateField(event) {
@@ -106,7 +108,7 @@ export default class tarefaCrud extends Component {
             })
     }
     addTarefa() {
-        console.log('updating field')
+        debugger
         const tarefa = { ...this.state.tarefa }
 
         axios['post'](tarefaUrl, tarefa)
@@ -125,81 +127,85 @@ export default class tarefaCrud extends Component {
     }
     renderUserList() {
         const usuarioList = this.state.usuarioList
-
         return usuarioList.map(usuario => {
+
             return (
                 <option value={usuario.id}>{usuario.username}</option>
             )
+
+
         })
     }
     renderForm() {
         return (
-            <div className="form">
-                <div className="row">
-                    <div className="col-12 col-md-6">
-                        <div className="form-group">
-                            <label>Tarefa</label>
-                            <input type="text" className="form-control"
-                                name="nome"
-                                value={this.state.tarefa.nome}
-                                onChange={e => this.updateField(e)}
-                                placeholder="Digite o nome..." />
+            <form className='needs-validation'>
+                <div className="form">
+                    <div className="row">
+                        <div className="col-12 col-md-6">
+                            <div className="form-group">
+                                <label>Tarefa</label>
+                                <input type="text" className="form-control"
+                                    name="nome"
+                                    value={this.state.tarefa.nome}
+                                    onChange={e => this.updateField(e)}
+                                    placeholder="Digite o nome..." />
+                            </div>
+                        </div>
+                        <div className="col-12 col-md-4">
+                            <label>Usuário</label>
+                            <select className="form-control"
+                                name="usuario_id"
+                                value={this.state.tarefa.usuarioId.id}
+                                onChange={e => this.updateUsuario(e)}>
+                                {this.renderUserList()}
+                            </select>
+                        </div>
+                        <div className="col-12 col-md-2">
+                            <div className="form-group">
+                                <label>Tempo estimado (h)</label>
+                                <input type="number" className="form-control"
+                                    name="tempoestimado"
+                                    value={this.state.tarefa.tempoestimado}
+                                    onChange={e => this.updateField(e)}
+                                    placeholder="Digite o tempo..."/>
+                            </div>
                         </div>
                     </div>
-                    <div className="col-12 col-md-4">
-                        <label for="exampleSelect1">Usuário</label>
-                        <select class="form-control"
-                            name="usuario_id"
-                            value={this.state.tarefa.usuario_id}
-                            onChange={e => this.updateUsuario(e)}>
-                            {this.renderUserList()}
-                        </select>
+                    <div className="row">
+
                     </div>
-                    <div className="col-12 col-md-2">
-                        <div className="form-group">
-                            <label>Tempo estimado (h)</label>
-                            <input type="number" className="form-control"
-                                name="tempoestimado"
-                                value={this.state.tarefa.tempoestimado}
-                                onChange={e => this.updateField(e)}
-                                placeholder="Digite o tempo..." />
+                    <div className="row">
+                        <div className="col-12 col-md-10">
+                            <div className="form-group">
+                                <label>Descrição</label>
+                                <textarea type="text" className="form-control"
+                                    name="descricao"
+                                    value={this.state.tarefa.descricao}
+                                    onChange={e => this.updateField(e)}
+                                    placeholder="Digite o descrição..." />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row">
 
-                </div>
-                <div className="row">
-                    <div className="col-12 col-md-10">
-                        <div className="form-group">
-                            <label>Descrição</label>
-                            <textarea type="text" className="form-control"
-                                name="descricao"
-                                value={this.state.tarefa.descricao}
-                                onChange={e => this.updateField(e)}
-                                placeholder="Digite o descrição..." />
-                        </div>
-                    </div>
-                </div>
+                    <hr />
 
-                <hr />
-
-                <div className="row">
-                    <div className="col-12 d-flex justify-content-end">
-                        <button className="btn btn-primary"
-                            onClick={e => this.addTarefa()}
-                        >
-                            Salvar
+                    <div className="row">
+                        <div className="col-12 d-flex justify-content-end">
+                            <button className="btn btn-primary"
+                                onClick={() => this.addTarefa()}
+                            >
+                                Salvar
                         </button>
 
-                        <button className="btn btn-secondary ml-2"
-                        // onClick={this.updateField}
-                        >
-                            Cancelar
+                            <button className="btn btn-secondary ml-2"
+                            // onClick={this.updateField}
+                            >
+                                Cancelar
                         </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         )
     }
 
@@ -233,9 +239,8 @@ export default class tarefaCrud extends Component {
     }
 
     modalFinalizaTarefa() {
-        debugger
         const tempoRealizado = this.state.tarefa.temporealizado || 0
-        const percentualDesvio = ((this.state.tarefa.tempoestimado - tempoRealizado)/this.state.tarefa.tempoestimado)*100;
+        const percentualDesvio = ((this.state.tarefa.tempoestimado - tempoRealizado) / this.state.tarefa.tempoestimado) * 100;
         return (<Modal
             isOpen={this.state.modalIsOpen}
             onAfterOpen={this.afterOpenModal}
@@ -260,7 +265,7 @@ export default class tarefaCrud extends Component {
                 <div className="col-12 col-md-12">
                     <div className="form-group">
                         <label>Percentual de Desvio</label>
-                        <br/>
+                        <br />
                         <strong>{percentualDesvio} %</strong>
                     </div>
                 </div>
@@ -293,7 +298,7 @@ export default class tarefaCrud extends Component {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
             const usuario = tarefa.usuarioId || {}
-            if (usuario.id === usuarioLogado.id & tarefa.temporealizado === 0) {
+            if (usuario.id === usuarioLogado.id & (tarefa.temporealizado === 0 | !tarefa.temporealizado)) {
                 return (
                     <tr key={tarefa.id}>
                         <td>{tarefa.id}</td>
@@ -305,12 +310,12 @@ export default class tarefaCrud extends Component {
                             <button className="btn btn-success" hidden={tarefa.temporealizado > 0}
                                 onClick={() => this.openModal(tarefa)}
                             >
-                                <i class="fa fa-check"></i>
+                                <i className="fa fa-check"></i>
                             </button>
                             <button className="btn btn-primary ml-2" hidden={tarefa.temporealizado > 0}
                                 onClick={() => this.openModal(tarefa)}
                             >
-                                <i class="fa fa-clock-o"></i>
+                                <i className="fa fa-clock-o"></i>
                             </button>
 
                             <button className="btn btn-warning ml-2"
