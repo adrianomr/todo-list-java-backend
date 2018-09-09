@@ -233,7 +233,9 @@ export default class tarefaCrud extends Component {
     }
 
     modalFinalizaTarefa() {
-
+        debugger
+        const tempoRealizado = this.state.tarefa.temporealizado || 0
+        const percentualDesvio = ((this.state.tarefa.tempoestimado - tempoRealizado)/this.state.tarefa.tempoestimado)*100;
         return (<Modal
             isOpen={this.state.modalIsOpen}
             onAfterOpen={this.afterOpenModal}
@@ -251,6 +253,15 @@ export default class tarefaCrud extends Component {
                             name="temporealizado"
                             value={this.state.tarefa.temporealizado}
                             onChange={e => this.updateField(e)} />
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-12 col-md-12">
+                    <div className="form-group">
+                        <label>Percentual de Desvio</label>
+                        <br/>
+                        <strong>{percentualDesvio} %</strong>
                     </div>
                 </div>
             </div>
@@ -282,7 +293,7 @@ export default class tarefaCrud extends Component {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
             const usuario = tarefa.usuarioId || {}
-            if (usuario.id === usuarioLogado.id) {
+            if (usuario.id === usuarioLogado.id & tarefa.temporealizado === 0) {
                 return (
                     <tr key={tarefa.id}>
                         <td>{tarefa.id}</td>
@@ -290,12 +301,18 @@ export default class tarefaCrud extends Component {
                         <td>{tarefa.tempoestimado}</td>
                         <td>{tarefa.descricao}</td>
                         <td>
-                            
-                            <button className="btn btn-success" hidden = {tarefa.temporealizado>0}
+
+                            <button className="btn btn-success" hidden={tarefa.temporealizado > 0}
                                 onClick={() => this.openModal(tarefa)}
                             >
                                 <i class="fa fa-check"></i>
                             </button>
+                            <button className="btn btn-primary ml-2" hidden={tarefa.temporealizado > 0}
+                                onClick={() => this.openModal(tarefa)}
+                            >
+                                <i class="fa fa-clock-o"></i>
+                            </button>
+
                             <button className="btn btn-warning ml-2"
                             // onClick={}
                             >
