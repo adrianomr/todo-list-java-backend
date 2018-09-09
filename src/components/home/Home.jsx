@@ -5,12 +5,14 @@ const baseUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
 export default class Home extends Component {
 
     componentWillMount() {
+        
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
         this.setState({ usuario, usuarioList: [] });
-        this.getUsuarios()
+        
 
     }
     componentDidMount() {
+        this.getUsuarios()
         const usuario = { ...this.state.usuario }
         if (usuario.username !== '')
             this.signIn()
@@ -23,7 +25,6 @@ export default class Home extends Component {
     }
 
     signIn() {
-        debugger
         const usuarioLogin = this.state.usuario;
         this.state.usuarioList.map(usuario => {
             if(usuario.username === usuarioLogin.username & usuario.senha === usuarioLogin.senha)
@@ -43,7 +44,6 @@ export default class Home extends Component {
         const usuario = this.state.usuario
         const method = 'post'
         const url = baseUrl
-        debugger
         axios[method](url, usuario)
             .then(resp => {
                 this.signIn()

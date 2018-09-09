@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import Main from '../template/Main'
 
+
 const headerProps = {
     icon: 'tarefas',
     title: 'Usuários',
@@ -23,6 +24,9 @@ export default class tarefaCrud extends Component {
     componentWillMount() {
         console.log('ok')
         this.setState(initialState)
+        
+    }
+    componentDidMount(){
         this.getUsuarios()
         this.getUsuarioLogado()
         this.search()
@@ -30,7 +34,7 @@ export default class tarefaCrud extends Component {
 
     getUsuarioLogado() {
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
-        debugger
+        
         this.setState({ usuarioLogado: usuario })
     }
 
@@ -52,14 +56,14 @@ export default class tarefaCrud extends Component {
         } else {
             tarefa[event.target.name] = event.target.value
         }
-        debugger
+        
         this.setState({ tarefa })
     }
 
     addTarefa() {
         console.log('updating field')
         const tarefa = { ...this.state.tarefa }
-        debugger
+        
         const list = this.state.list;
         axios['post'](tarefaUrl, tarefa)
             .then(resp => {
@@ -71,13 +75,13 @@ export default class tarefaCrud extends Component {
 
     search() {
         axios(tarefaUrl).then(resp => {
-            debugger
+            
             this.setState({ list: resp.data })
         })
     }
     renderUserList() {
         const usuarioList = this.state.usuarioList
-        debugger;
+        
         return usuarioList.map(usuario => {
             return (
                 <option value={usuario.id}>{usuario.username}</option>

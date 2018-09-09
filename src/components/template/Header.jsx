@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 export default class Header extends Component {
 
     signOut = () => {
+        debugger
         localStorage.setItem('usuario', JSON.stringify({ id: '', username: '', senha: '' }))
     }
     render() {
@@ -13,7 +14,7 @@ export default class Header extends Component {
             <input class="form-control w-100" type="text" placeholder="Search" aria-label="Search" />
             <ul class="navbar-nav px-3">
                 <li class="nav-item text-nowrap">
-                    <Link class="nav-link" onClick={this.signOut()} to="/">
+                    <Link class="nav-link" onClick={this.signOut} to="/">
                         <i>Sign out</i>
                     </Link>
                 </li>
