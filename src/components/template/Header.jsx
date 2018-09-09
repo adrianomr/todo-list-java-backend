@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 export default class Header extends Component {
 
     signOut = () => {
-        debugger
         localStorage.setItem('usuario', JSON.stringify({ id: '', username: '', senha: '' }))
     }
     render() {

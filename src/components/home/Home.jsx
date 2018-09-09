@@ -8,15 +8,10 @@ export default class Home extends Component {
 
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
         this.setState({ usuario, usuarioList: [], errorMessage: "" });
-
-
-    }
-    componentDidMount() {
         this.getUsuarios()
-        const usuario = { ...this.state.usuario }
-        if (usuario.username !== '')
-            this.signIn()
+
     }
+
     updateField(event) {
         console.log('updating field')
         const usuario = { ...this.state.usuario }
@@ -27,6 +22,7 @@ export default class Home extends Component {
     signIn() {
         const usuarioLogin = this.state.usuario;
         this.state.usuarioList.map(usuario => {
+
             if (usuario.username === usuarioLogin.username & usuario.senha === usuarioLogin.senha) {
                 localStorage.setItem('usuario', JSON.stringify({ ...usuarioLogin, id: usuario.id }))
                 this.props.history.push('/tarefas')
@@ -36,8 +32,13 @@ export default class Home extends Component {
 
     }
     getUsuarios() {
+
         axios(baseUrl).then(resp => {
+
             this.setState({ usuarioList: resp.data })
+            const usuario = { ...this.state.usuario }
+            if (usuario.username !== '')
+                this.signIn()
         })
     }
 
@@ -55,9 +56,9 @@ export default class Home extends Component {
     errorMessage() {
         if (this.state.errorMessage !== "") {
             return (
-            <div className="my-2 col-mx-auto alert alert-danger">
-                <strong>{this.state.errorMessage}</strong>
-            </div>)
+                <div className="my-2 col-mx-auto alert alert-danger">
+                    <strong>{this.state.errorMessage}</strong>
+                </div>)
         }
         return ""
     }

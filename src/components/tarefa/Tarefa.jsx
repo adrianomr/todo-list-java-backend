@@ -181,12 +181,16 @@ export default class tarefaCrud extends Component {
             </table>
         )
     }
-
+    delete(id){
+        debugger
+        axios['delete'](tarefaUrl+`/${id}`).then(resp => {
+            this.search()
+        })
+    }
     renderRows() {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
             const usuario = tarefa.usuarioId || {}
-            debugger
             if (usuario.id === usuarioLogado.id) {
                 return (
                     <tr key={tarefa.id}>
@@ -201,7 +205,7 @@ export default class tarefaCrud extends Component {
                                 <i className="fa fa-pencil"></i>
                             </button>
                             <button className="btn btn-danger ml-2"
-                            // onClick={}
+                            onClick={() => this.delete(tarefa.id)}
                             >
                                 <i className="fa fa-trash"></i>
                             </button>
