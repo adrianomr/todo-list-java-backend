@@ -10,7 +10,7 @@ const headerProps = {
 }
 const tarefaUrl = 'http://localhost:13422/tarefas/webresources/todolist.tarefa'
 const usuarioUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
-const tarefaInicial = { nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuario_id: null }
+const tarefaInicial = { nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuarioId: {} }
 const initialState = {
     tarefa: tarefaInicial,
     list: [],
@@ -49,7 +49,6 @@ export default class tarefaCrud extends Component {
     }
 
     updateField(event) {
-        console.log('updating field')
         const tarefa = { ...this.state.tarefa }
         if (event.target.type === "number") {
             tarefa[event.target.name] = parseFloat(event.target.value)
@@ -59,12 +58,19 @@ export default class tarefaCrud extends Component {
         
         this.setState({ tarefa })
     }
+    updateUsuario(event) {
+        const tarefa = { ...this.state.tarefa }
+        tarefa.usuarioId = {id:event.target.value}
+        debugger
+        this.setState({ tarefa })
+    }
 
     addTarefa() {
         console.log('updating field')
         const tarefa = { ...this.state.tarefa }
         
         const list = this.state.list;
+        debugger
         axios['post'](tarefaUrl, tarefa)
             .then(resp => {
                 this.search()
@@ -107,7 +113,7 @@ export default class tarefaCrud extends Component {
                         <select class="form-control"
                             name="usuario_id"
                             value={this.state.tarefa.usuario_id}
-                            onChange={e => this.updateField(e)}>
+                            onChange={e => this.updateUsuario(e)}>
                             {this.renderUserList()}
                         </select>
                     </div>
@@ -181,7 +187,6 @@ export default class tarefaCrud extends Component {
     renderRows() {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
-            debugger
             const usuario = tarefa.usuarioId || {}
             if (usuario.id === usuarioLogado.id) {
                 return (
