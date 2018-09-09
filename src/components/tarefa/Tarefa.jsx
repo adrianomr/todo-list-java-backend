@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Main from '../template/Main'
+import Modal from 'react-modal';
 
 
 const headerProps = {
@@ -15,26 +16,56 @@ const initialState = {
     tarefa: tarefaInicial,
     list: [],
     usuarioList: [],
-    usuarioLogado: {}
+    usuarioLogado: {},
+    modalFinalizaTarefa: false,
+    modalIsOpen: false
 }
-
+Modal.setAppElement('#root')
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
 export default class tarefaCrud extends Component {
 
 
     componentWillMount() {
         console.log('ok')
         this.setState(initialState)
-        
+
+
+        this.openModal = this.openModal.bind(this);
+        this.afterOpenModal = this.afterOpenModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
     }
-    componentDidMount(){
+    componentDidMount() {
         this.getUsuarios()
         this.getUsuarioLogado()
         this.search()
     }
 
+    openModal(tarefa) {
+        this.setState({ modalIsOpen: true, tarefa });
+    }
+
+    afterOpenModal() {
+        // references are now sync'd and can be accessed.
+        // this.subtitle.style.color = '#f00';
+    }
+
+    closeModal() {
+        this.setState({ modalIsOpen: false });
+    }
+
+
     getUsuarioLogado() {
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
-        
+
         this.setState({ usuarioLogado: usuario })
     }
 
@@ -49,26 +80,35 @@ export default class tarefaCrud extends Component {
     }
 
     updateField(event) {
+
         const tarefa = { ...this.state.tarefa }
         if (event.target.type === "number") {
             tarefa[event.target.name] = parseFloat(event.target.value)
         } else {
             tarefa[event.target.name] = event.target.value
         }
-        
+
         this.setState({ tarefa })
     }
     updateUsuario(event) {
         const tarefa = { ...this.state.tarefa }
-        tarefa.usuarioId = {id:event.target.value}
+        tarefa.usuarioId = { id: event.target.value }
         this.setState({ tarefa })
     }
+    editTarefa() {
 
+
+        axios['put'](tarefaUrl + `/${this.state.tarefa.id}`, this.state.tarefa)
+            .then(resp => {
+                this.search()
+                this.clear()
+                this.closeModal()
+            })
+    }
     addTarefa() {
         console.log('updating field')
         const tarefa = { ...this.state.tarefa }
-        
-        const list = this.state.list;
+
         axios['post'](tarefaUrl, tarefa)
             .then(resp => {
                 this.search()
@@ -79,13 +119,13 @@ export default class tarefaCrud extends Component {
 
     search() {
         axios(tarefaUrl).then(resp => {
-            
+
             this.setState({ list: resp.data })
         })
     }
     renderUserList() {
         const usuarioList = this.state.usuarioList
-        
+
         return usuarioList.map(usuario => {
             return (
                 <option value={usuario.id}>{usuario.username}</option>
@@ -153,7 +193,7 @@ export default class tarefaCrud extends Component {
                         </button>
 
                         <button className="btn btn-secondary ml-2"
-                            onClick={this.updateField}
+                        // onClick={this.updateField}
                         >
                             Cancelar
                         </button>
@@ -181,12 +221,63 @@ export default class tarefaCrud extends Component {
             </table>
         )
     }
-    delete(id){
-        debugger
-        axios['delete'](tarefaUrl+`/${id}`).then(resp => {
+    delete(id) {
+
+        axios['delete'](tarefaUrl + `/${id}`).then(resp => {
             this.search()
         })
     }
+
+    abrirFinalizaTarefa(id) {
+        this.setState({ modalFinalizaTarefa: true })
+    }
+
+    modalFinalizaTarefa() {
+
+        return (<Modal
+            isOpen={this.state.modalIsOpen}
+            onAfterOpen={this.afterOpenModal}
+            onRequestClose={this.closeModal}
+            style={customStyles}
+            contentLabel="Example Modal"
+        >
+
+            <h2>Finalizar tarefa</h2>
+            <div className="row">
+                <div className="col-12 col-md-12">
+                    <div className="form-group">
+                        <label>Digite o tempo gasto para realizar a tarefa</label>
+                        <input type="number" className="form-control"
+                            name="temporealizado"
+                            value={this.state.tarefa.temporealizado}
+                            onChange={e => this.updateField(e)} />
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-12 col-md-12 d-flex justify-content-end">
+                    <button className="btn btn-secondary"
+                        onClick={this.closeModal}
+                    >
+                        Cancelar
+                        </button>
+                    <button className="btn btn-primary ml-2"
+                        onClick={e => this.editTarefa()}
+                    >
+                        Confirmar
+                        </button>
+
+
+                </div>
+            </div>
+            {/* <button onClick={this.closeModal}>close</button>
+          <div>I am a modal</div> */}
+            <form>
+
+            </form>
+        </Modal>)
+    }
+
     renderRows() {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
@@ -199,13 +290,19 @@ export default class tarefaCrud extends Component {
                         <td>{tarefa.tempoestimado}</td>
                         <td>{tarefa.descricao}</td>
                         <td>
-                            <button className="btn btn-warning"
+                            
+                            <button className="btn btn-success" hidden = {tarefa.temporealizado>0}
+                                onClick={() => this.openModal(tarefa)}
+                            >
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button className="btn btn-warning ml-2"
                             // onClick={}
                             >
                                 <i className="fa fa-pencil"></i>
                             </button>
                             <button className="btn btn-danger ml-2"
-                            onClick={() => this.delete(tarefa.id)}
+                                onClick={() => this.delete(tarefa.id)}
                             >
                                 <i className="fa fa-trash"></i>
                             </button>
@@ -223,6 +320,7 @@ export default class tarefaCrud extends Component {
             <Main {...headerProps}>
                 {this.renderForm()}
                 {this.renderTable()}
+                {this.modalFinalizaTarefa()}
             </Main>
         )
     }
