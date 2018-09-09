@@ -5,10 +5,10 @@ const baseUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
 export default class Home extends Component {
 
     componentWillMount() {
-        
+
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
-        this.setState({ usuario, usuarioList: [] });
-        
+        this.setState({ usuario, usuarioList: [], errorMessage: "" });
+
 
     }
     componentDidMount() {
@@ -27,11 +27,13 @@ export default class Home extends Component {
     signIn() {
         const usuarioLogin = this.state.usuario;
         this.state.usuarioList.map(usuario => {
-            if(usuario.username === usuarioLogin.username & usuario.senha === usuarioLogin.senha)
-                localStorage.setItem('usuario', JSON.stringify({... usuarioLogin, id:usuario.id}))
+            if (usuario.username === usuarioLogin.username & usuario.senha === usuarioLogin.senha) {
+                localStorage.setItem('usuario', JSON.stringify({ ...usuarioLogin, id: usuario.id }))
+                this.props.history.push('/tarefas')
+            }
         })
-        
-        this.props.history.push('/tarefas')
+        this.setState({ errorMessage: "Usuario e senha inválidos" })
+
     }
     getUsuarios() {
         axios(baseUrl).then(resp => {
@@ -48,6 +50,16 @@ export default class Home extends Component {
             .then(resp => {
                 this.signIn()
             })
+    }
+
+    errorMessage() {
+        if (this.state.errorMessage !== "") {
+            return (
+            <div className="my-2 col-mx-auto alert alert-danger">
+                <strong>{this.state.errorMessage}</strong>
+            </div>)
+        }
+        return ""
     }
 
     render() {
@@ -82,6 +94,7 @@ export default class Home extends Component {
                     <button className="btn btn-lg btn-secondary btn-block"
                         onClick={e => this.signUp()}
                         type="submit">Sign up</button>
+                    {this.errorMessage()}
                 </div>
             </div>
         )

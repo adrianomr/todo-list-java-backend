@@ -61,7 +61,6 @@ export default class tarefaCrud extends Component {
     updateUsuario(event) {
         const tarefa = { ...this.state.tarefa }
         tarefa.usuarioId = {id:event.target.value}
-        debugger
         this.setState({ tarefa })
     }
 
@@ -70,7 +69,6 @@ export default class tarefaCrud extends Component {
         const tarefa = { ...this.state.tarefa }
         
         const list = this.state.list;
-        debugger
         axios['post'](tarefaUrl, tarefa)
             .then(resp => {
                 this.search()
@@ -188,6 +186,7 @@ export default class tarefaCrud extends Component {
         const usuarioLogado = this.state.usuarioLogado
         return this.state.list.map(tarefa => {
             const usuario = tarefa.usuarioId || {}
+            debugger
             if (usuario.id === usuarioLogado.id) {
                 return (
                     <tr key={tarefa.id}>
