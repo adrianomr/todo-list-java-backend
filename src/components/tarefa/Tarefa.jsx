@@ -19,7 +19,7 @@ const initialState = {
     usuarioLogado: {},
     modalIsOpen: false,
     errorMessage: "",
-    errorMessageConclusao:""
+    errorMessageConclusao: ""
 }
 Modal.setAppElement('#root')
 const customStyles = {
@@ -33,13 +33,13 @@ const customStyles = {
     }
 };
 export default class tarefaCrud extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
     }
 
     componentWillMount() {
         console.log('ok')
-        
+
         this.setState(initialState)
 
         this.openModal = this.openModal.bind(this);
@@ -100,41 +100,50 @@ export default class tarefaCrud extends Component {
         tarefa.usuarioId = { id: event.target.value }
         this.setState({ tarefa })
     }
-    valida(){
-        if(this.state.tarefa.nome === ''){
-            this.setState({errorMessage: "Campo 'Tarefa' deve ser preenchido"})
+    valida() {
+        if (this.state.tarefa.nome === '') {
+            this.setState({ errorMessage: "Campo 'Tarefa' deve ser preenchido" })
             return false
         }
-        if(this.state.tarefa.tempoestimado === '' | this.state.tarefa.tempoestimado <= 0){
-            this.setState({errorMessage: "Campo 'Tempo estimado' deve ser preenchido"})
+        if (this.state.tarefa.tempoestimado === '' | this.state.tarefa.tempoestimado <= 0) {
+            this.setState({ errorMessage: "Campo 'Tempo estimado' deve ser preenchido" })
             return false
         }
-        this.setState({errorMessage:""})
+        this.setState({ errorMessage: "" })
         return true
     }
     editTarefa() {
 
-        if(this.valida()){
-        axios['put'](tarefaUrl + `/${this.state.tarefa.id}`, this.state.tarefa)
-            .then(resp => {
-                this.search()
-                this.clear()
-                this.closeModal()
-            })
+        if (this.valida()) {
+            axios['put'](tarefaUrl + `/${this.state.tarefa.id}`, this.state.tarefa)
+                .then(resp => {
+                    this.search()
+                    this.clear()
+                    this.closeModal()
+                })
         }
     }
-    addTarefa() {
-        if(this.valida()){
+
+    carregaEdicao(id) {
         debugger
-        const tarefa = { ...this.state.tarefa }
+        axios(tarefaUrl + `/${id}`).then(resp => {
 
-        axios['post'](tarefaUrl, tarefa)
-            .then(resp => {
-                this.search()
-            })
-        this.clear()
+            this.setState({ tarefa: resp.data })
+        })
+    }
+
+    confirmar() {
+        if (this.valida()) {
+            debugger
+            const tarefa = { ...this.state.tarefa }
+            const method = ((tarefa.id === null) ? 'post' : 'put')
+            const url = tarefaUrl+((tarefa.id === null) ? '' : `/${tarefa.id}`)
+            axios[method](url, tarefa)
+                .then(resp => {
+                    this.search()
+                })
+            this.clear()
         }
-
     }
 
     search() {
@@ -154,18 +163,18 @@ export default class tarefaCrud extends Component {
 
         })
     }
-    validaConclusaoTarefa(){
+    validaConclusaoTarefa() {
         const tempoRealizado = this.state.tarefa.temporealizado || 0
-        if(tempoRealizado > 0){
+        if (tempoRealizado > 0) {
             this.editTarefa()
-            this.setState({errorMessageConclusao:""})
-        }else{
-            this.setState({errorMessageConclusao:"Preencha o campo 'Tempo gasto'"})
+            this.setState({ errorMessageConclusao: "" })
+        } else {
+            this.setState({ errorMessageConclusao: "Preencha o campo 'Tempo gasto'" })
         }
     }
     errorMessage() {
         debugger
-        if (this.state.errorMessage !== "" ) {
+        if (this.state.errorMessage !== "") {
             return (
                 <div className="my-2 col-mx-auto alert alert-danger">
                     <strong>{this.state.errorMessage}</strong>
@@ -176,7 +185,7 @@ export default class tarefaCrud extends Component {
 
     errorConclusaoMessage() {
         debugger
-        if (this.state.errorMessageConclusao !== "" ) {
+        if (this.state.errorMessageConclusao !== "") {
             return (
                 <div className="my-2 col-mx-auto alert alert-danger">
                     <strong>{this.state.errorMessageConclusao}</strong>
@@ -186,73 +195,75 @@ export default class tarefaCrud extends Component {
     }
 
     renderForm() {
+        const tarefa = this.state.tarefa
+        const id = ((tarefa.id === null) ? '' : ` - ${tarefa.id}`)
         return (
-                <div className="form">
-                    <div className="row">
-                        <div className="col-12 col-md-6">
-                            <div className="form-group">
-                                <label>Tarefa</label>
-                                <input type="text" className="form-control"
-                                    name="nome"
-                                    value={this.state.tarefa.nome}
-                                    onChange={e => this.updateField(e)}
-                                    placeholder="Digite o nome..." />
-                            </div>
-                        </div>
-                        <div className="col-12 col-md-4">
-                            <label>Usuário</label>
-                            <select className="form-control"
-                                name="usuario_id"
-                                value={this.state.tarefa.usuarioId.id}
-                                onChange={e => this.updateUsuario(e)}>
-                                {this.renderUserList()}
-                            </select>
-                        </div>
-                        <div className="col-12 col-md-2">
-                            <div className="form-group">
-                                <label>Tempo estimado (h)</label>
-                                <input type="number" className="form-control"
-                                    name="tempoestimado"
-                                    value={this.state.tarefa.tempoestimado}
-                                    onChange={e => this.updateField(e)}
-                                    placeholder="Digite o tempo..."/>
-                            </div>
+            <div className="form">
+                <div className="row">
+                    <div className="col-12 col-md-6">
+                        <div className="form-group">
+                            <label>Tarefa{id}</label>
+                            <input type="text" className="form-control"
+                                name="nome"
+                                value={this.state.tarefa.nome}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o nome..." />
                         </div>
                     </div>
-                    <div className="row">
-
+                    <div className="col-12 col-md-4">
+                        <label>Usuário</label>
+                        <select className="form-control"
+                            name="usuario_id"
+                            value={this.state.tarefa.usuarioId.id}
+                            onChange={e => this.updateUsuario(e)}>
+                            {this.renderUserList()}
+                        </select>
                     </div>
-                    <div className="row">
-                        <div className="col-12 col-md-10">
-                            <div className="form-group">
-                                <label>Descrição</label>
-                                <textarea type="text" className="form-control"
-                                    name="descricao"
-                                    value={this.state.tarefa.descricao}
-                                    onChange={e => this.updateField(e)}
-                                    placeholder="Digite o descrição..." />
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr />
-                    {this.errorMessage()}
-                    <div className="row">
-                        <div className="col-12 d-flex justify-content-end">
-                            <button className="btn btn-primary"
-                                onClick={() => this.addTarefa()}
-                            >
-                                Salvar
-                        </button>
-
-                            <button className="btn btn-secondary ml-2"
-                            // onClick={this.updateField}
-                            >
-                                Cancelar
-                        </button>
+                    <div className="col-12 col-md-2">
+                        <div className="form-group">
+                            <label>Tempo estimado (h)</label>
+                            <input type="number" className="form-control"
+                                name="tempoestimado"
+                                value={this.state.tarefa.tempoestimado}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o tempo..." />
                         </div>
                     </div>
                 </div>
+                <div className="row">
+
+                </div>
+                <div className="row">
+                    <div className="col-12 col-md-10">
+                        <div className="form-group">
+                            <label>Descrição</label>
+                            <textarea type="text" className="form-control"
+                                name="descricao"
+                                value={this.state.tarefa.descricao}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o descrição..." />
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                {this.errorMessage()}
+                <div className="row">
+                    <div className="col-12 d-flex justify-content-end">
+                        <button className="btn btn-primary"
+                            onClick={() => this.confirmar()}
+                        >
+                            Salvar
+                        </button>
+
+                        <button className="btn btn-secondary ml-2"
+                        // onClick={this.updateField}
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
         )
     }
 
@@ -367,7 +378,7 @@ export default class tarefaCrud extends Component {
                             </button>
 
                             <button className="btn btn-warning ml-2"
-                            // onClick={}
+                                onClick={() => this.carregaEdicao(tarefa.id)}
                             >
                                 <i className="fa fa-pencil"></i>
                             </button>
