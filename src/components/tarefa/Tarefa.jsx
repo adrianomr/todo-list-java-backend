@@ -18,7 +18,8 @@ const initialState = {
     usuarioList: [],
     usuarioLogado: {},
     modalIsOpen: false,
-    errorMessage: ""
+    errorMessage: "",
+    errorMessageConclusao:""
 }
 Modal.setAppElement('#root')
 const customStyles = {
@@ -32,12 +33,14 @@ const customStyles = {
     }
 };
 export default class tarefaCrud extends Component {
-
+    constructor(props){
+        super(props)
+    }
 
     componentWillMount() {
         console.log('ok')
+        
         this.setState(initialState)
-
 
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
@@ -97,17 +100,31 @@ export default class tarefaCrud extends Component {
         tarefa.usuarioId = { id: event.target.value }
         this.setState({ tarefa })
     }
+    valida(){
+        if(this.state.tarefa.nome === ''){
+            this.setState({errorMessage: "Campo 'Tarefa' deve ser preenchido"})
+            return false
+        }
+        if(this.state.tarefa.tempoestimado === '' | this.state.tarefa.tempoestimado <= 0){
+            this.setState({errorMessage: "Campo 'Tempo estimado' deve ser preenchido"})
+            return false
+        }
+        this.setState({errorMessage:""})
+        return true
+    }
     editTarefa() {
 
-
+        if(this.valida()){
         axios['put'](tarefaUrl + `/${this.state.tarefa.id}`, this.state.tarefa)
             .then(resp => {
                 this.search()
                 this.clear()
                 this.closeModal()
             })
+        }
     }
     addTarefa() {
+        if(this.valida()){
         debugger
         const tarefa = { ...this.state.tarefa }
 
@@ -116,6 +133,7 @@ export default class tarefaCrud extends Component {
                 this.search()
             })
         this.clear()
+        }
 
     }
 
@@ -136,9 +154,39 @@ export default class tarefaCrud extends Component {
 
         })
     }
+    validaConclusaoTarefa(){
+        const tempoRealizado = this.state.tarefa.temporealizado || 0
+        if(tempoRealizado > 0){
+            this.editTarefa()
+            this.setState({errorMessageConclusao:""})
+        }else{
+            this.setState({errorMessageConclusao:"Preencha o campo 'Tempo gasto'"})
+        }
+    }
+    errorMessage() {
+        debugger
+        if (this.state.errorMessage !== "" ) {
+            return (
+                <div className="my-2 col-mx-auto alert alert-danger">
+                    <strong>{this.state.errorMessage}</strong>
+                </div>)
+        }
+        return ""
+    }
+
+    errorConclusaoMessage() {
+        debugger
+        if (this.state.errorMessageConclusao !== "" ) {
+            return (
+                <div className="my-2 col-mx-auto alert alert-danger">
+                    <strong>{this.state.errorMessageConclusao}</strong>
+                </div>)
+        }
+        return ""
+    }
+
     renderForm() {
         return (
-            <form className='needs-validation'>
                 <div className="form">
                     <div className="row">
                         <div className="col-12 col-md-6">
@@ -188,7 +236,7 @@ export default class tarefaCrud extends Component {
                     </div>
 
                     <hr />
-
+                    {this.errorMessage()}
                     <div className="row">
                         <div className="col-12 d-flex justify-content-end">
                             <button className="btn btn-primary"
@@ -205,7 +253,6 @@ export default class tarefaCrud extends Component {
                         </div>
                     </div>
                 </div>
-            </form>
         )
     }
 
@@ -270,6 +317,7 @@ export default class tarefaCrud extends Component {
                     </div>
                 </div>
             </div>
+            {this.errorConclusaoMessage()}
             <div className="row">
                 <div className="col-12 col-md-12 d-flex justify-content-end">
                     <button className="btn btn-secondary"
@@ -278,7 +326,7 @@ export default class tarefaCrud extends Component {
                         Cancelar
                         </button>
                     <button className="btn btn-primary ml-2"
-                        onClick={e => this.editTarefa()}
+                        onClick={e => this.validaConclusaoTarefa()}
                     >
                         Confirmar
                         </button>

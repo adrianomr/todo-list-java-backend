@@ -3,7 +3,7 @@ import axios from 'axios'
 import './Home.css'
 const baseUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
 export default class Home extends Component {
-
+    
     componentWillMount() {
 
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
