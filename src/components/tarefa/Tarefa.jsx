@@ -11,6 +11,7 @@ const headerProps = {
 }
 const tarefaUrl = 'http://localhost:13422/tarefas/webresources/todolist.tarefa'
 const usuarioUrl = 'http://localhost:13422/tarefas/webresources/todolist.usuario'
+const tarefaTempoUrl = 'http://localhost:13422/tarefas/webresources/todolist.tarefatempo'
 const tarefaInicial = { id: null, nome: '', tempoestimado: 0, temporealizado: 0, descricao: '', usuarioId: {} }
 const initialState = {
     tarefa: tarefaInicial,
@@ -19,7 +20,8 @@ const initialState = {
     usuarioLogado: {},
     modalIsOpen: false,
     errorMessage: "",
-    errorMessageConclusao: ""
+    errorMessageConclusao: "",
+    modalTempoIsOpen: false
 }
 Modal.setAppElement('#root')
 const customStyles = {
@@ -45,6 +47,8 @@ export default class tarefaCrud extends Component {
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.openModalTempo = this.openModalTempo.bind(this);
+        this.closeModalTempo = this.closeModalTempo.bind(this);
         this.updateField = this.updateField.bind(this);
     }
     componentDidMount() {
@@ -57,6 +61,32 @@ export default class tarefaCrud extends Component {
         this.setState({ modalIsOpen: true, tarefa });
     }
 
+    openModalTempo(tarefa) {
+        debugger
+        axios(tarefaTempoUrl).then(resp => {
+            const listTarefaTempo = resp.data
+            var tarefaTempoId = ""
+            var tarefaTempoEditar = {}
+            listTarefaTempo.map(tarefaTempo =>{
+                if(tarefaTempo.tarefaId.id === tarefa.id){
+                    const dataFinal = tarefaTempo.datafinal || ""
+                    if(dataFinal === ""){
+                        tarefaTempoId = tarefaTempo.id
+                        tarefaTempoEditar = tarefaTempo
+                    }
+                }
+            })
+            if(tarefaTempoId === ""){
+                debugger
+                axios['post'](tarefaTempoUrl, {datainicial:new Date(), tarefaId:tarefa})
+            }else{
+                debugger
+                axios['put'](tarefaTempoUrl+`/${tarefaTempoId}`, {...tarefaTempoEditar, datafinal:new Date()})
+            }
+        })
+        this.setState({ modalTempoIsOpen: true });
+    }
+
     afterOpenModal() {
         // references are now sync'd and can be accessed.
         // this.subtitle.style.color = '#f00';
@@ -65,12 +95,14 @@ export default class tarefaCrud extends Component {
     closeModal() {
         this.setState({ modalIsOpen: false });
     }
+    closeModalTempo() {
+        this.setState({ modalTempoIsOpen: false });
+    }
 
 
     getUsuarioLogado() {
         const usuario = JSON.parse(localStorage.getItem('usuario')) || { id: '', username: '', senha: '' }
         const tarefa = { ...this.state.tarefa, usuarioId: usuario }
-        debugger
         this.setState({ usuarioLogado: usuario, tarefa })
     }
 
@@ -125,7 +157,6 @@ export default class tarefaCrud extends Component {
     }
 
     carregaEdicao(id) {
-        debugger
         axios(tarefaUrl + `/${id}`).then(resp => {
 
             this.setState({ tarefa: resp.data })
@@ -134,7 +165,6 @@ export default class tarefaCrud extends Component {
 
     confirmar() {
         if (this.valida()) {
-            debugger
             const tarefa = { ...this.state.tarefa }
             const method = ((tarefa.id === null) ? 'post' : 'put')
             const url = tarefaUrl+((tarefa.id === null) ? '' : `/${tarefa.id}`)
@@ -173,7 +203,6 @@ export default class tarefaCrud extends Component {
         }
     }
     errorMessage() {
-        debugger
         if (this.state.errorMessage !== "") {
             return (
                 <div className="my-2 col-mx-auto alert alert-danger">
@@ -184,7 +213,6 @@ export default class tarefaCrud extends Component {
     }
 
     errorConclusaoMessage() {
-        debugger
         if (this.state.errorMessageConclusao !== "") {
             return (
                 <div className="my-2 col-mx-auto alert alert-danger">
@@ -345,11 +373,32 @@ export default class tarefaCrud extends Component {
 
                 </div>
             </div>
-            {/* <button onClick={this.closeModal}>close</button>
-          <div>I am a modal</div> */}
-            <form>
+        </Modal>)
+    }
 
-            </form>
+    modalTempoTarefa() {
+        debugger
+        return (<Modal
+            isOpen={this.state.modalTempoIsOpen}
+            onRequestClose={this.closeModalTempo}
+            style={customStyles}
+            contentLabel="Example Modal"
+        >
+
+            <h2>Tarefa iniciada</h2>
+            
+            <div className="row">
+                <div className="col-12 col-md-12 d-flex justify-content-end">
+                    <button className="btn btn-primary ml-2"
+                        onClick={() => this.closeModalTempo()}
+                    >
+                        <i className="fa fa-check"></i>
+                        </button>
+
+
+                </div>
+            </div>
+            
         </Modal>)
     }
 
@@ -366,13 +415,13 @@ export default class tarefaCrud extends Component {
                         <td>{tarefa.descricao}</td>
                         <td>
 
-                            <button className="btn btn-success" hidden={tarefa.temporealizado > 0}
+                            <button className="btn btn-success"
                                 onClick={() => this.openModal(tarefa)}
                             >
                                 <i className="fa fa-check"></i>
                             </button>
-                            <button className="btn btn-primary ml-2" hidden={tarefa.temporealizado > 0}
-                                onClick={() => this.openModal(tarefa)}
+                            <button className="btn btn-primary ml-2"
+                                onClick={() => this.openModalTempo(tarefa)}
                             >
                                 <i className="fa fa-clock-o"></i>
                             </button>
@@ -402,6 +451,7 @@ export default class tarefaCrud extends Component {
                 {this.renderForm()}
                 {this.renderTable()}
                 {this.modalFinalizaTarefa()}
+                {this.modalTempoTarefa()}
             </Main>
         )
     }
