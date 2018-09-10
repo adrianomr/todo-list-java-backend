@@ -21,7 +21,8 @@ const initialState = {
     modalIsOpen: false,
     errorMessage: "",
     errorMessageConclusao: "",
-    modalTempoIsOpen: false
+    modalTempoIsOpen: false,
+    modalTempoMensagem: ""
 }
 Modal.setAppElement('#root')
 const customStyles = {
@@ -79,12 +80,15 @@ export default class tarefaCrud extends Component {
             if(tarefaTempoId === ""){
                 debugger
                 axios['post'](tarefaTempoUrl, {datainicial:new Date(), tarefaId:tarefa})
+                this.setState({ modalTempoIsOpen: true , modalTempoMensagem: "Tarefa iniciada"});
             }else{
                 debugger
                 axios['put'](tarefaTempoUrl+`/${tarefaTempoId}`, {...tarefaTempoEditar, datafinal:new Date()})
+                this.setState({ modalTempoIsOpen: true , modalTempoMensagem: "Tarefa parada"});
             }
+            
         })
-        this.setState({ modalTempoIsOpen: true });
+        
     }
 
     afterOpenModal() {
@@ -385,7 +389,7 @@ export default class tarefaCrud extends Component {
             contentLabel="Example Modal"
         >
 
-            <h2>Tarefa iniciada</h2>
+            <h2>{this.state.modalTempoMensagem}</h2>
             
             <div className="row">
                 <div className="col-12 col-md-12 d-flex justify-content-end">
