@@ -49,7 +49,7 @@ export default class Home extends Component {
         const url = baseUrl
         axios[method](url, usuario)
             .then(resp => {
-                this.signIn()
+                this.getUsuarios()
             })
     }
 
